@@ -1,14 +1,14 @@
 import Emitter from './emitter.js'
 
 export default class Canvas extends Emitter {
-    constructor (id, width, height) {
+    constructor (id, width = null, height = null) {
     super()
     this.id = id
         this.width = width
         this.height = height
         this.el = document.getElementById(id)
-        this.el.width = width
-        this.el.height = height
+        this.el.width = width ? width : this.el.width
+        this.el.height = height ? height : this.el.height
         this.el.setAttribute('tabindex', 1)
         this.ctx = this.el.getContext('2d')
         this.ctx.imageSmoothingEnabled = false
