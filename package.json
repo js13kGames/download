@@ -1,0 +1,23 @@
+{
+  "name": "js13k-2018",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rosancoderian/js13k-2018.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rosancoderian/js13k-2018/issues"
+  },
+  "homepage": "https://github.com/rosancoderian/js13k-2018#readme",
+  "devDependencies": {
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0"
+  }
+}
