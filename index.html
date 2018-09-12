@@ -50,11 +50,21 @@ const Packet = {
             packet.y += this.speed
     },
     update () {
+        if (this.width <= 0) {
+            return
+        }
         if (this.x >= tunnel.x + tunnel.width - this.width) {
             this.x =  tunnel.x + tunnel.width - this.width - 1
+            this.shrink()
         }
         if (this.x <= tunnel.x) {
             this.x = tunnel.x + 1
+            this.shrink()
+        }
+        if (this.width <= 0) {
+            game.stop()
+            console.log('Download Failed')
+            return
         }
     },
     shrink () {
@@ -76,14 +86,18 @@ const Tunnel = {
     y: 0,
     width: game.canvas.width,
     height: game.canvas.height,
+    shrink () {
+        this.width -= 0.4
+        this.x += 0.2
+    },
     update () {
         if (this.width <= 0) {
             return
         }
-        if (!(this.width <= (Packet.width + 15))) {
-            this.width -= 0.4
-            this.x += 0.2
+        if ((this.width <= (Packet.width + 10))) {
+            return
         }
+        this.shrink()
     },
     render (ctx) {
         ctx.fillStyle = '#fff';
@@ -122,6 +136,9 @@ const Obstacle = {
             this.reset()
             packet.shrink()
         }
+        if (this.y == game.canvas.height && (tunnel.width <= (Packet.width + 15))) {
+            return
+        }
         this.y -= this.speed
     },
     render (ctx) {
@@ -130,6 +147,38 @@ const Obstacle = {
     }
 }
 
+const Finish = {
+    x: 0,
+    y: game.canvas.height,
+    width: Packet.width + 10,
+    height: 10,
+    isCollide (obj) {
+        return this.x < obj.x + obj.width && 
+            this.x + this.width > obj.x &&
+            this.y < obj.y + obj.height && 
+            this.y + this.height > obj.y
+    },
+    update () {
+        this.x = tunnel.x
+        if (this.isCollide(packet)) {
+            game.stop()
+            console.log('Data downloaded at ' + packet.width / Packet.width * 100)
+            return
+        }
+        if ((tunnel.width <= (Packet.width + 15))) {
+            this.y -= 0.5
+        }
+        if (this.y <= game.canvas.height - 10) {
+            return
+        }
+    },
+    render (ctx) {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+
+let finish = {...Finish}
 let tunnel = {...Tunnel}
 let packet = {...Packet}
 let obstacles = []
@@ -147,12 +196,14 @@ game.keyboard.on('down', (key, ev) => {
 game.on('update', (dt, game) => {
     tunnel.update(dt, game)
     packet.update(dt, game)
+    finish.update(dt, game)
     obstacles.forEach(obs => obs.update(dt, game))
 })
 
 game.on('render', (stage) => {
     tunnel.render(stage.ctx)
     packet.render(stage.ctx)
+    finish.render(stage.ctx)
     obstacles.forEach(obs => obs.render(stage.ctx))
 })
 
