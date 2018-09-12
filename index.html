@@ -11,6 +11,8 @@
         margin: 0;
         padding: 0;
         background: #000;
+        color: #fff;
+        font-family: sans-serif;
     }
 
     canvas {
@@ -25,8 +27,16 @@
     canvas:focus {
         outline: none;
     }
+
+    h2 {
+        position: absolute;
+    }
 </style>
 <body>
+    <h2 style="float: left;left: 100px;top: 350px;">
+        Use arrow keys to move the data<br><br>
+        Safely download the data at 100% completion!!!
+    </h2>
     <canvas id="canvas"></canvas>
 </body>
 <script src="/dist/gim.js"></script>
