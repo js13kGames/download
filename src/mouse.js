@@ -12,8 +12,8 @@ export default class Mouse extends Emitter {
         let offsetTop = this.canvas.el.offsetTop
         let offsetLeft = this.canvas.el.offsetLeft
         return {
-            x: e.clientX - offsetTop,
-            y: e.clientY - offsetLeft
+            x: e.clientX - offsetLeft,
+            y: e.clientY - offsetTop
         }
     }
 }
