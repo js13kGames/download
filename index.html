@@ -28,19 +28,63 @@
         outline: none;
     }
 
-    h2 {
+    .note,
+    .lose,
+    .win {
         position: absolute;
+        float: left;
+        left: 50%;
+        top: 50%;
+        text-align: center;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        border-radius: 4px;
+        background: #fff;
+        color: #000;
+    }
+
+    .lose {
+        background: red;
+        color: #fff;
+        display: none;
+    }
+
+    .win {
+        background: green;
+        color: #fff;
+        display: none;
     }
 </style>
 <body>
-    <h2 style="float: left;left: 100px;top: 350px;">
-        Use arrow keys to move the data<br><br>
-        Safely download the data at 100% completion!!!
+    <h2 id="note" class="note">
+        Safely download the data before the it is disconnected!
+        <br><br>
+        Use arrow keys to move the data
     </h2>
+    <h2 id="lose" class="lose">Disconnected :(</h2>
+    <h2 id="win" class="win">Data downloaded 0%</h2>
     <canvas id="canvas"></canvas>
 </body>
 <script src="/dist/gim.js"></script>
 <script>
+function win (score = 0) {
+    let el = document.getElementById('win')
+    el.style.display = 'initial'
+    el.innerHTML = 'Data downloaded ' + score + '%'
+    document.getElementById('canvas').style.display = 'none'
+}
+
+function lose () {
+    document.getElementById('lose').style.display = 'initial'
+    document.getElementById('canvas').style.display = 'none'
+}
+
+function start () {
+    document.getElementById('note').style.display = 'none'
+    document.getElementById('canvas').focus()
+    game.start()
+}
+
 let game = new gim.Game('canvas', 500, window.innerHeight)
 
 const Packet = {
@@ -73,7 +117,8 @@ const Packet = {
         }
         if (this.width <= 0) {
             game.stop()
-            console.log('Download Failed')
+            console.log('Disconnected :(')
+            lose()
             return
         }
     },
@@ -102,9 +147,7 @@ const Tunnel = {
     },
     update () {
         if (this.width <= 0) {
-            return
-        }
-        if ((this.width <= (Packet.width + 10))) {
+            lose()
             return
         }
         this.shrink()
@@ -120,7 +163,7 @@ const Obstacle = {
     y: game.canvas.height,
     width: 5,
     height: 5,
-    speed: 10,
+    speed: 8,
     isCollide (obj) {
         return this.x < obj.x + obj.width && 
             this.x + this.width > obj.x &&
@@ -161,22 +204,31 @@ const Finish = {
     x: 0,
     y: game.canvas.height,
     width: Packet.width + 10,
-    height: 10,
+    height: 20,
     isCollide (obj) {
         return this.x < obj.x + obj.width && 
             this.x + this.width > obj.x &&
             this.y < obj.y + obj.height && 
             this.y + this.height > obj.y
     },
+    shrink () {
+        if (this.width <= 0)
+            return
+        this.width -= 0.4
+        this.x += 0.2
+    },
     update () {
-        this.x = tunnel.x
+        this.x = game.canvas.width / 2 - this.width / 2
         if (this.isCollide(packet)) {
             game.stop()
-            console.log('Data downloaded at ' + packet.width / Packet.width * 100)
+            let score = packet.width / Packet.width * 100
+            console.log('Data downloaded ' + score + '%')
+            win(score)
             return
         }
         if ((tunnel.width <= (Packet.width + 15))) {
-            this.y -= 0.5
+            this.y -= 2
+            this.shrink()
         }
         if (this.y <= game.canvas.height - 10) {
             return
@@ -217,9 +269,6 @@ game.on('render', (stage) => {
     obstacles.forEach(obs => obs.render(stage.ctx))
 })
 
-setTimeout(() => {
-    document.getElementById('canvas').focus()
-    game.start()
-}, 3000)
+setTimeout(start, 4000)
 </script>
 </html>
